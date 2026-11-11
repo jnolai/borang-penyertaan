@@ -150,7 +150,6 @@
       <!-- ================= 2. KAD PAS MASUK & KOD QR ================= -->
       <div id="resultSection" class="hidden animate-pop-in space-y-4">
         
-        <!-- Notis Kejayaan -->
         <div class="bg-emerald-500/20 border border-emerald-500/40 rounded-2xl p-3.5 text-emerald-300 text-center">
           <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-slate-950 font-bold mb-1">
             <i class="fa-solid fa-check text-xs"></i>
@@ -272,9 +271,12 @@
       <!-- Bahagian Senarai & Butang Muat Turun PDF -->
       <div id="adminContentBox" class="p-4 sm:p-5 flex-1 flex flex-col space-y-4 overflow-hidden hidden">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
+          <div class="flex items-center gap-2">
             <span class="text-xs text-slate-400">Jumlah Peserta:</span>
-            <span id="participantCount" class="font-bold text-cyan-400 ml-1">0</span>
+            <span id="participantCount" class="font-bold text-cyan-400">0</span>
+            <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1" title="Muat semula data dari Google Sheet">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
           </div>
 
           <button 
@@ -288,7 +290,7 @@
         </div>
 
         <!-- Jadual Data Peserta -->
-        <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/50">
+        <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/50 min-h-[220px]">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-800/80 sticky top-0 text-slate-300">
               <tr>
@@ -320,6 +322,8 @@
       const TARGET_GAME_URL = "https://jnolai.github.io/tembak-gagak-v3";
       const ADMIN_SECRET = "UMKB13813";
 
+      let globalParticipants = [];
+
       const form = document.getElementById('registrationForm');
       const formSection = document.getElementById('formSection');
       const resultSection = document.getElementById('resultSection');
@@ -349,6 +353,7 @@
       const participantCount = document.getElementById('participantCount');
       const participantTableBody = document.getElementById('participantTableBody');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+      const refreshDataBtn = document.getElementById('refreshDataBtn');
 
       function generateQRCode(text) {
         qrcodeContainer.innerHTML = '';
@@ -389,16 +394,7 @@
           timestamp: new Date().toLocaleString('ms-MY')
         };
 
-        // Simpan tempatan (localStorage)
-        try {
-          const list = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
-          list.push(record);
-          localStorage.setItem('jkew_participants', JSON.stringify(list));
-        } catch (err) {
-          console.warn("Storage error", err);
-        }
-
-        // Hantar ke Google Sheet Web App
+        // Simpan ke Google Sheet Web App
         try {
           await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -453,12 +449,10 @@
         adminPassInput.focus();
       });
 
-      // Fungsi Tutup & Kunci Semula Admin Modal
+      // Tutup & Reset Sesi Modal
       function resetAndCloseAdminModal() {
         adminModal.classList.add('hidden');
         adminModal.classList.remove('flex');
-        
-        // Reset status sesi admin
         adminAuthBox.classList.remove('hidden');
         adminContentBox.classList.add('hidden');
         adminPassInput.value = '';
@@ -473,7 +467,7 @@
           authErrorMsg.classList.add('hidden');
           adminAuthBox.classList.add('hidden');
           adminContentBox.classList.remove('hidden');
-          loadAdminTable();
+          fetchLiveSheetData();
         } else {
           authErrorMsg.classList.remove('hidden');
           adminPassInput.value = '';
@@ -486,24 +480,47 @@
         if (e.key === 'Enter') checkAdminLogin();
       });
 
-      function loadAdminTable() {
-        const list = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
+      refreshDataBtn.addEventListener('click', fetchLiveSheetData);
+
+      // Tarik Data Langsung Dari Google Sheet (Live Fetch)
+      async function fetchLiveSheetData() {
+        participantTableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-cyan-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Mengambil rekod dari Google Sheet...</td></tr>`;
+        
+        try {
+          const res = await fetch(SCRIPT_URL);
+          const data = await res.json();
+          globalParticipants = data;
+          renderAdminTable(data);
+        } catch (err) {
+          console.warn("Gagal tarik online, fallback ke local:", err);
+          // Fallback sekiranya doGet belum dideploy
+          const localList = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
+          globalParticipants = localList.filter(item => item && (item.nama || item.name));
+          renderAdminTable(globalParticipants);
+        }
+      }
+
+      function renderAdminTable(list) {
         participantCount.textContent = list.length;
         participantTableBody.innerHTML = '';
 
-        if (list.length === 0) {
-          participantTableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Tiada rekod pendaftaran lagi.</td></tr>`;
+        if (!list || list.length === 0) {
+          participantTableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Tiada rekod pendaftaran dijumpai.</td></tr>`;
           return;
         }
 
         list.forEach((item, idx) => {
+          const nama = item.nama || item.name || '-';
+          const noGaji = item.noGaji || item.salaryNo || '-';
+          const dept = item.bahagian || item.department || '-';
+
           const tr = document.createElement('tr');
           tr.className = "hover:bg-slate-900/60";
           tr.innerHTML = `
             <td class="p-2.5 font-bold text-slate-500">${idx + 1}</td>
-            <td class="p-2.5 font-semibold text-white">${item.nama}</td>
-            <td class="p-2.5 font-mono text-yellow-300">${item.noGaji}</td>
-            <td class="p-2.5 text-slate-300">${item.bahagian}</td>
+            <td class="p-2.5 font-semibold text-white">${nama}</td>
+            <td class="p-2.5 font-mono text-yellow-300">${noGaji}</td>
+            <td class="p-2.5 text-slate-300">${dept}</td>
           `;
           participantTableBody.appendChild(tr);
         });
@@ -511,8 +528,7 @@
 
       // Jana & Muat Turun PDF
       downloadPdfBtn.addEventListener('click', () => {
-        const list = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
-        if (list.length === 0) {
+        if (globalParticipants.length === 0) {
           alert('Tiada data untuk dimuat turun!');
           return;
         }
@@ -520,24 +536,23 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-        // Header Dokumen
-        doc.setFontSize(16);
+        doc.setFontSize(15);
         doc.setTextColor(2, 132, 199);
         doc.text("JABATAN KEWANGAN (JKEW) DBKL", 14, 18);
 
-        doc.setFontSize(12);
+        doc.setFontSize(11);
         doc.setTextColor(30, 41, 59);
         doc.text("SENARAI PENYERTAAN JKEW E-GAMES 2026", 14, 25);
 
-        doc.setFontSize(9);
+        doc.setFontSize(8.5);
         doc.setTextColor(100, 116, 139);
-        doc.text(`Tarikh Cetakan: ${new Date().toLocaleString('ms-MY')} | Jumlah Peserta: ${list.length}`, 14, 31);
+        doc.text(`Tarikh Cetakan: ${new Date().toLocaleString('ms-MY')} | Jumlah Peserta: ${globalParticipants.length}`, 14, 31);
 
-        const tableData = list.map((item, index) => [
+        const tableData = globalParticipants.map((item, index) => [
           index + 1,
-          item.nama,
-          item.noGaji,
-          item.bahagian,
+          item.nama || item.name || '-',
+          item.noGaji || item.salaryNo || '-',
+          item.bahagian || item.department || '-',
           item.timestamp || '-'
         ]);
 
