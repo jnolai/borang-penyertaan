@@ -231,8 +231,8 @@
   </main>
 
   <!-- ================= 3. MODAL PANEL URUS SETIA / ADMIN ================= -->
-  <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl text-slate-200 overflow-hidden">
+  <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl text-slate-200 overflow-hidden">
       
       <!-- Tajuk Modal -->
       <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
@@ -247,7 +247,7 @@
         </button>
       </div>
 
-      <!-- Bahagian Password (Tiada paparan password) -->
+      <!-- Bahagian Password -->
       <div id="adminAuthBox" class="p-8 text-center space-y-4">
         <p class="text-sm text-slate-300">Masukkan kata laluan pentadbir untuk mengakses senarai peserta:</p>
         <div class="max-w-xs mx-auto flex gap-2">
@@ -274,7 +274,7 @@
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-400">Jumlah Peserta:</span>
             <span id="participantCount" class="font-bold text-cyan-400">0</span>
-            <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1" title="Muat semula data dari Pengkalan Data">
+            <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1" title="Muat semula data dari Google Sheet">
               <i class="fa-solid fa-arrows-rotate"></i>
             </button>
           </div>
@@ -289,15 +289,16 @@
           </button>
         </div>
 
-        <!-- Jadual Data Peserta -->
-        <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/50 min-h-[220px]">
-          <table class="w-full text-left text-xs">
+        <!-- Jadual Data Peserta dengan Tarikh/Masa -->
+        <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/50 min-h-[240px]">
+          <table class="w-full text-left text-xs whitespace-nowrap">
             <thead class="bg-slate-800/80 sticky top-0 text-slate-300">
               <tr>
                 <th class="p-2.5">#</th>
                 <th class="p-2.5">Nama Penuh</th>
                 <th class="p-2.5">No. Gaji</th>
                 <th class="p-2.5">Bahagian/Unit</th>
+                <th class="p-2.5">Tarikh & Waktu Daftar</th>
               </tr>
             </thead>
             <tbody id="participantTableBody" class="divide-y divide-slate-800 text-slate-300">
@@ -387,11 +388,14 @@
         btnText.textContent = "Merekodkan...";
         btnIcon.className = "fa-solid fa-spinner fa-spin";
 
+        const now = new Date();
+        const formattedTimestamp = now.toLocaleDateString('ms-MY') + ' ' + now.toLocaleTimeString('ms-MY');
+
         const record = {
           nama: nama,
           noGaji: noGaji,
           bahagian: bahagian,
-          timestamp: new Date().toLocaleString('ms-MY')
+          timestamp: formattedTimestamp
         };
 
         // Simpan ke Google Sheet Web App
@@ -484,7 +488,7 @@
 
       // Tarik Data Langsung Dari Google Sheet (Live Fetch)
       async function fetchLiveSheetData() {
-        participantTableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-cyan-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Mengambil rekod dari Pengkalan Data...</td></tr>`;
+        participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-cyan-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Mengambil rekod terkini dari Google Sheet...</td></tr>`;
         
         try {
           const res = await fetch(SCRIPT_URL);
@@ -493,7 +497,6 @@
           renderAdminTable(data);
         } catch (err) {
           console.warn("Gagal tarik online, fallback ke local:", err);
-          // Fallback sekiranya doGet belum dideploy
           const localList = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
           globalParticipants = localList.filter(item => item && (item.nama || item.name));
           renderAdminTable(globalParticipants);
@@ -505,7 +508,7 @@
         participantTableBody.innerHTML = '';
 
         if (!list || list.length === 0) {
-          participantTableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Tiada rekod pendaftaran dijumpai.</td></tr>`;
+          participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tiada rekod pendaftaran dijumpai.</td></tr>`;
           return;
         }
 
@@ -513,6 +516,7 @@
           const nama = item.nama || item.name || '-';
           const noGaji = item.noGaji || item.salaryNo || '-';
           const dept = item.bahagian || item.department || '-';
+          const time = item.timestamp || item.tarikh || '-';
 
           const tr = document.createElement('tr');
           tr.className = "hover:bg-slate-900/60";
@@ -521,6 +525,7 @@
             <td class="p-2.5 font-semibold text-white">${nama}</td>
             <td class="p-2.5 font-mono text-yellow-300">${noGaji}</td>
             <td class="p-2.5 text-slate-300">${dept}</td>
+            <td class="p-2.5 text-slate-400 font-mono text-[11px]">${time}</td>
           `;
           participantTableBody.appendChild(tr);
         });
@@ -553,12 +558,12 @@
           item.nama || item.name || '-',
           item.noGaji || item.salaryNo || '-',
           item.bahagian || item.department || '-',
-          item.timestamp || '-'
+          item.timestamp || item.tarikh || '-'
         ]);
 
         doc.autoTable({
           startY: 36,
-          head: [['No.', 'Nama Peserta', 'No. Gaji', 'Bahagian / Unit', 'Tarikh/Masa']],
+          head: [['No.', 'Nama Peserta', 'No. Gaji', 'Bahagian / Unit', 'Tarikh & Waktu']],
           body: tableData,
           theme: 'striped',
           headStyles: { fillColor: [2, 132, 199], textColor: [255, 255, 255], fontStyle: 'bold' },
