@@ -384,7 +384,7 @@
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-400">Jumlah Peserta:</span>
             <span id="participantCount" class="font-bold text-cyan-400">0</span>
-            <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1" title="Muat semula data dari Google Sheet">
+            <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1" title="Muat semula data dari DB">
               <i class="fa-solid fa-arrows-rotate"></i>
             </button>
           </div>
@@ -613,7 +613,7 @@
 
       // Tarik Data Langsung Dari Google Sheet (Live Fetch)
       async function fetchLiveSheetData() {
-        participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-cyan-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Mengambil rekod terkini dari Google Sheet...</td></tr>`;
+        participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-cyan-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Mengambil rekod terkini dari DB...</td></tr>`;
         
         try {
           const res = await fetch(SCRIPT_URL);
