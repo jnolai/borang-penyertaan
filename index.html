@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- jsPDF & autoTable untuk jana PDF Senarai Peserta -->
+  <!-- jsPDF & autoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
@@ -65,7 +65,7 @@
       <button 
         type="button" 
         id="openAdminModalBtn"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition cursor-pointer"
       >
         <i class="fa-solid fa-shield-halved"></i>
         <span>Admin / Urus Setia</span>
@@ -210,7 +210,7 @@
             <button 
               type="button" 
               id="copyLinkBtn" 
-              class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5"
+              class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <i class="fa-regular fa-copy"></i>
               <span id="copyBtnText">Salin Pautan</span>
@@ -218,7 +218,7 @@
             <button 
               type="button" 
               id="resetFormBtn" 
-              class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5"
+              class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <i class="fa-solid fa-rotate-left"></i>
               <span>Borang Baru</span>
@@ -239,48 +239,48 @@
       <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
-            <i class="fa-solid fa-users-gear text-sm"></i>
+            <i class="fa-solid fa-shield-halved text-sm"></i>
           </div>
           <h3 class="font-bold text-white text-base">Panel Urus Setia JKEW</h3>
         </div>
-        <button id="closeAdminModalBtn" class="text-slate-400 hover:text-white p-1">
+        <button id="closeAdminModalBtn" class="text-slate-400 hover:text-white p-1 cursor-pointer" title="Tutup">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <!-- Bahagian Password (Sekiranya belum login) -->
-      <div id="adminAuthBox" class="p-6 text-center space-y-4">
-        <p class="text-xs text-slate-400">Masukkan kata laluan pentadbir untuk mengakses senarai peserta:</p>
+      <!-- Bahagian Password (Tiada paparan password) -->
+      <div id="adminAuthBox" class="p-8 text-center space-y-4">
+        <p class="text-sm text-slate-300">Masukkan kata laluan pentadbir untuk mengakses senarai peserta:</p>
         <div class="max-w-xs mx-auto flex gap-2">
           <input 
             type="password" 
             id="adminPassInput" 
             placeholder="Kata Laluan" 
-            class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm outline-none focus:border-cyan-500"
+            class="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
           >
           <button 
             type="button" 
             id="adminLoginBtn" 
-            class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs uppercase"
+            class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider cursor-pointer"
           >
             Masuk
           </button>
         </div>
-        <p class="text-[11px] text-slate-500">Kata laluan: <span class="text-slate-400 font-mono">jkew2026</span></p>
+        <p id="authErrorMsg" class="text-xs text-rose-400 font-medium hidden">Kata laluan tidak sah. Sila cuba lagi.</p>
       </div>
 
       <!-- Bahagian Senarai & Butang Muat Turun PDF -->
       <div id="adminContentBox" class="p-4 sm:p-5 flex-1 flex flex-col space-y-4 overflow-hidden hidden">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <span class="text-xs text-slate-400">Jumlah Peserta Disimpan:</span>
+            <span class="text-xs text-slate-400">Jumlah Peserta:</span>
             <span id="participantCount" class="font-bold text-cyan-400 ml-1">0</span>
           </div>
 
           <button 
             type="button" 
             id="downloadPdfBtn"
-            class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition"
+            class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition cursor-pointer"
           >
             <i class="fa-solid fa-file-pdf"></i>
             <span>Muat Turun PDF</span>
@@ -318,6 +318,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeR44MjBXcJgQJmpZfZObwcU143uDJImQY-pxKpCWpeUmzTAjDj3jKPKuq8KKm1lHO/exec";
       const TARGET_GAME_URL = "https://jnolai.github.io/tembak-gagak-v3";
+      const ADMIN_SECRET = "UMKB13813";
 
       const form = document.getElementById('registrationForm');
       const formSection = document.getElementById('formSection');
@@ -344,6 +345,7 @@
       const adminContentBox = document.getElementById('adminContentBox');
       const adminPassInput = document.getElementById('adminPassInput');
       const adminLoginBtn = document.getElementById('adminLoginBtn');
+      const authErrorMsg = document.getElementById('authErrorMsg');
       const participantCount = document.getElementById('participantCount');
       const participantTableBody = document.getElementById('participantTableBody');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
@@ -444,25 +446,44 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
-      // Modal Admin
+      // Buka Modal Admin
       openAdminModalBtn.addEventListener('click', () => {
         adminModal.classList.remove('hidden');
         adminModal.classList.add('flex');
-      });
-      closeAdminModalBtn.addEventListener('click', () => {
-        adminModal.classList.add('hidden');
-        adminModal.classList.remove('flex');
+        adminPassInput.focus();
       });
 
-      // Login Admin
-      adminLoginBtn.addEventListener('click', () => {
-        if (adminPassInput.value === 'jkew2026' || adminPassInput.value === 'admin') {
+      // Fungsi Tutup & Kunci Semula Admin Modal
+      function resetAndCloseAdminModal() {
+        adminModal.classList.add('hidden');
+        adminModal.classList.remove('flex');
+        
+        // Reset status sesi admin
+        adminAuthBox.classList.remove('hidden');
+        adminContentBox.classList.add('hidden');
+        adminPassInput.value = '';
+        authErrorMsg.classList.add('hidden');
+      }
+
+      closeAdminModalBtn.addEventListener('click', resetAndCloseAdminModal);
+
+      // Log Masuk Admin
+      function checkAdminLogin() {
+        if (adminPassInput.value === ADMIN_SECRET) {
+          authErrorMsg.classList.add('hidden');
           adminAuthBox.classList.add('hidden');
           adminContentBox.classList.remove('hidden');
           loadAdminTable();
         } else {
-          alert('Kata laluan tidak sah!');
+          authErrorMsg.classList.remove('hidden');
+          adminPassInput.value = '';
+          adminPassInput.focus();
         }
+      }
+
+      adminLoginBtn.addEventListener('click', checkAdminLogin);
+      adminPassInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkAdminLogin();
       });
 
       function loadAdminTable() {
