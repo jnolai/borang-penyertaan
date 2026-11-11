@@ -137,7 +137,7 @@
           <div class="pt-2">
             <button 
               type="submit" 
-              id="submitBtn"
+              id="submitBtn" 
               class="w-full py-3.5 px-6 rounded-xl font-black text-slate-950 jkew-gradient shadow-lg shadow-cyan-500/25 hover:opacity-95 transform active:scale-[0.99] transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
             >
               <span id="btnText">Hantar & Dapatkan Pas</span>
@@ -149,7 +149,6 @@
 
       <!-- ================= 2. KAD PAS MASUK & KOD QR ================= -->
       <div id="resultSection" class="hidden animate-pop-in space-y-4">
-        
         <div class="bg-emerald-500/20 border border-emerald-500/40 rounded-2xl p-3.5 text-emerald-300 text-center">
           <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-slate-950 font-bold mb-1">
             <i class="fa-solid fa-check text-xs"></i>
@@ -245,23 +244,20 @@
         </div>
       </div>
 
-      <!-- Kandungan Syarat (Boleh Skrol) -->
+      <!-- Kandungan Syarat -->
       <div class="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
-        
-        <!-- Seksyen 1 -->
         <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
           <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-1.5 flex items-center gap-2">
             <i class="fa-regular fa-clock text-amber-400"></i> 1. Format & Tempoh Masa
           </h4>
           <ul class="list-disc list-inside space-y-1 text-slate-300 text-xs">
-             <li><strong class="text-white">Game On/End:</strong> 11:00am sehingga 11:59am.</li>
+            <li><strong class="text-white">Game On/End:</strong> 11:00am sehingga 11:59am.</li>
             <li><strong class="text-white">Masa Permainan:</strong> 60 saat bagi setiap pusingan.</li>
             <li><strong class="text-white">Fasa Kecemasan:</strong> Amaran khas akan diaktifkan pada 10 saat terakhir.</li>
-            <li><strong class="text-white">Had Rekod Skor:</strong> Sistem hanya merekodkan <span class="text-cyan-300 font-bold">5 markah terbaik dan hanya satu markah tertinggi pemain yang akan direkodkan</span> dalam pangkalan data/papan skor terpusat.  <span class="text-rose-400 font-bold">Percubaan seterusnya tidak akan mengubah rekod jika kuota telah dipenuhi.</span></li>
+            <li><strong class="text-white">Had Rekod Skor:</strong> Sistem hanya merekodkan <span class="text-cyan-300 font-bold">5 markah terbaik dan hanya satu markah tertinggi pemain yang akan direkodkan</span> dalam pangkalan data/papan skor terpusat. <span class="text-rose-400 font-bold">Percubaan seterusnya tidak akan mengubah rekod jika kuota telah dipenuhi.</span></li>
           </ul>
         </div>
 
-        <!-- Seksyen 2 -->
         <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
           <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-2 flex items-center gap-2">
             <i class="fa-solid fa-crosshairs text-rose-400"></i> 2. Sasaran & Sistem Pemarkahan
@@ -296,7 +292,6 @@
           </div>
         </div>
 
-        <!-- Seksyen 3 -->
         <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
           <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-1.5 flex items-center gap-2">
             <i class="fa-solid fa-lightbulb text-yellow-300"></i> 3. Pusingan Bonus Kuiz
@@ -312,7 +307,6 @@
           </ul>
         </div>
 
-        <!-- Seksyen 4 -->
         <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
           <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-1.5 flex items-center gap-2">
             <i class="fa-solid fa-trophy text-amber-400"></i> 4. Papan Skor (Leaderboard)
@@ -324,14 +318,13 @@
             <li><strong class="text-cyan-300">5 pemenang</strong> akan menerima Hadiah Misteri daripada pihak penganjur.</li>
           </ul>
         </div>
-
       </div>
 
       <!-- Tindakan: Butang Saya Faham -->
       <div class="p-4 sm:p-5 border-t border-slate-800 bg-slate-900/90 flex flex-col gap-2">
         <button 
           type="button" 
-          id="confirmRulesBtn"
+          id="confirmRulesBtn" 
           class="w-full py-3.5 px-6 rounded-xl font-black text-slate-950 jkew-gradient shadow-lg shadow-cyan-500/25 hover:opacity-95 transform active:scale-[0.99] transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
         >
           <i class="fa-solid fa-check"></i>
@@ -386,14 +379,17 @@
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-400">Jumlah Peserta:</span>
             <span id="participantCount" class="font-bold text-cyan-400">0</span>
-            <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1" title="Muat semula data dari DB">
-              <i class="fa-solid fa-arrows-rotate"></i>
+            <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1 cursor-pointer" title="Muat semula data dari DB">
+              <i id="refreshIcon" class="fa-solid fa-arrows-rotate"></i>
             </button>
+            <span id="syncIndicator" class="text-[10px] text-slate-500 ml-1">
+              <i class="fa-regular fa-clock mr-0.5"></i> Auto sync 60s
+            </span>
           </div>
 
           <button 
             type="button" 
-            id="downloadPdfBtn"
+            id="downloadPdfBtn" 
             class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition cursor-pointer"
           >
             <i class="fa-solid fa-file-pdf"></i>
@@ -436,6 +432,7 @@
       const ADMIN_SECRET = "UMKB13813";
 
       let globalParticipants = [];
+      let autoSyncInterval = null; // Pemasa untuk auto sync
 
       const form = document.getElementById('registrationForm');
       const formSection = document.getElementById('formSection');
@@ -471,6 +468,7 @@
       const participantTableBody = document.getElementById('participantTableBody');
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
       const refreshDataBtn = document.getElementById('refreshDataBtn');
+      const refreshIcon = document.getElementById('refreshIcon');
 
       function generateQRCode(text) {
         qrcodeContainer.innerHTML = '';
@@ -580,8 +578,25 @@
         adminPassInput.focus();
       });
 
+      // Hentikan Auto Sync Timer
+      function stopAutoSync() {
+        if (autoSyncInterval) {
+          clearInterval(autoSyncInterval);
+          autoSyncInterval = null;
+        }
+      }
+
+      // Mulakan Auto Sync Timer (Setiap 60 saat)
+      function startAutoSync() {
+        stopAutoSync();
+        autoSyncInterval = setInterval(() => {
+          fetchLiveSheetData(true); // background silent sync
+        }, 60000);
+      }
+
       // Tutup & Reset Sesi Modal Admin
       function resetAndCloseAdminModal() {
+        stopAutoSync();
         adminModal.classList.add('hidden');
         adminModal.classList.remove('flex');
         adminAuthBox.classList.remove('hidden');
@@ -598,7 +613,8 @@
           authErrorMsg.classList.add('hidden');
           adminAuthBox.classList.add('hidden');
           adminContentBox.classList.remove('hidden');
-          fetchLiveSheetData();
+          fetchLiveSheetData(false);
+          startAutoSync(); // Aktifkan kitaran sync setiap 1 minit
         } else {
           authErrorMsg.classList.remove('hidden');
           adminPassInput.value = '';
@@ -611,22 +627,34 @@
         if (e.key === 'Enter') checkAdminLogin();
       });
 
-      refreshDataBtn.addEventListener('click', fetchLiveSheetData);
+      refreshDataBtn.addEventListener('click', () => {
+        fetchLiveSheetData(false);
+        startAutoSync(); // Reset semula kitaran 1 minit dari masa klik
+      });
 
       // Tarik Data Langsung Dari Google Sheet (Live Fetch)
-      async function fetchLiveSheetData() {
-        participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-cyan-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Mengambil rekod terkini dari DB...</td></tr>`;
+      async function fetchLiveSheetData(isSilent = false) {
+        if (refreshIcon) refreshIcon.classList.add('fa-spin');
+        
+        // Hanya tunjuk placeholder spinner sekiranya bukan sync latar belakang atau jadual kosong
+        if (!isSilent || globalParticipants.length === 0) {
+          participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-cyan-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Mengambil rekod terkini dari DB...</td></tr>`;
+        }
         
         try {
           const res = await fetch(SCRIPT_URL);
           const data = await res.json();
-          globalParticipants = data;
-          renderAdminTable(data);
+          globalParticipants = Array.isArray(data) ? data : [];
+          renderAdminTable(globalParticipants);
         } catch (err) {
           console.warn("Gagal tarik online, fallback ke local:", err);
-          const localList = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
-          globalParticipants = localList.filter(item => item && (item.nama || item.name));
-          renderAdminTable(globalParticipants);
+          if (globalParticipants.length === 0) {
+            const localList = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
+            globalParticipants = localList.filter(item => item && (item.nama || item.name));
+            renderAdminTable(globalParticipants);
+          }
+        } finally {
+          if (refreshIcon) refreshIcon.classList.remove('fa-spin');
         }
       }
 
