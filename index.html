@@ -3,26 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Borang Penyertaan JKEW E-GAMES</title>
+  <title>Borang Penyertaan JKEW E-GAMES 2026</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts Montserrat & Plus Jakarta Sans -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome untuk ikon -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- QRCode.js untuk penghasilan kod QR dinamik & tepat -->
+  <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- jsPDF & autoTable untuk jana PDF Senarai Peserta -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .poster-font {
-      font-family: 'Montserrat', sans-serif;
-    }
-    /* Warna gradien khas seperti dalam poster */
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .poster-font { font-family: 'Montserrat', sans-serif; }
     .jkew-gradient {
       background: linear-gradient(135deg, #00AEEF 0%, #38BDF8 30%, #E0E756 75%, #FACC15 100%);
     }
@@ -30,41 +28,48 @@
       background: linear-gradient(180deg, #02b6e8 0%, #36c5ea 35%, #9ae27a 70%, #ffde36 100%);
     }
     .glass-card {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(12px);
     }
     .animate-pop-in {
-      animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.92) translateY(20px); }
+      0% { opacity: 0; transform: scale(0.94) translateY(15px); }
       100% { opacity: 1; transform: scale(1) translateY(0); }
     }
   </style>
 </head>
 <body class="min-h-screen bg-slate-900 text-slate-800 flex flex-col justify-between selection:bg-cyan-500 selection:text-white relative overflow-x-hidden">
-  
-  <!-- Latar Belakang Grafik Hiasan -->
+
+  <!-- Hiasan Latar Belakang -->
   <div class="fixed inset-0 pointer-events-none -z-10 opacity-30">
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500 rounded-full blur-3xl"></div>
     <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-yellow-400 rounded-full blur-3xl"></div>
   </div>
 
   <!-- Header Navigasi -->
-  <header class="w-full bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-4 px-6 sticky top-0 z-40">
+  <header class="w-full bg-slate-900/90 backdrop-blur-md border-b border-slate-800 py-3.5 px-4 sm:px-6 sticky top-0 z-40">
     <div class="max-w-4xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl jkew-gradient flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-cyan-500/20">
           <i class="fa-solid fa-gamepad"></i>
         </div>
         <div>
-          <h1 class="text-white font-extrabold text-lg leading-tight tracking-wider poster-font">JKEW E-GAMES</h1>
-          <p class="text-xs text-cyan-400 font-medium">Borang Pendaftaran Rasmi</p>
+          <h1 class="text-white font-extrabold text-base sm:text-lg leading-tight tracking-wider poster-font">JKEW E-GAMES</h1>
+          <p class="text-[11px] text-cyan-400 font-medium">Borang Pendaftaran Rasmi</p>
         </div>
       </div>
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Dibuka
-      </span>
+      
+      <!-- Butang Admin -->
+      <button 
+        type="button" 
+        id="openAdminModalBtn"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition"
+      >
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Admin / Urus Setia</span>
+      </button>
     </div>
   </header>
 
@@ -72,20 +77,20 @@
   <main class="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8">
     <div class="w-full max-w-md">
 
-      <!-- ================= 1. BAHAGIAN BORANG PENDAFTARAN ================= -->
-      <div id="formSection" class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/40 transition-all duration-300">
+      <!-- ================= 1. BORANG PENDAFTARAN ================= -->
+      <div id="formSection" class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/40">
         <div class="text-center mb-6">
           <span class="inline-block py-1 px-3 rounded-full bg-cyan-100 text-cyan-800 font-bold text-xs uppercase tracking-wider mb-2">
             Penyertaan Terbuka
           </span>
           <h2 class="text-2xl font-black text-slate-900 poster-font">Daftar Sekarang</h2>
-          <p class="text-sm text-slate-600 mt-1">Sila lengkapkan butiran anda di bawah untuk menerima pas masuk dan kod akses permainan.</p>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">Lengkapkan butiran anda untuk menerima pas masuk dan kod QR rasmi kejohanan.</p>
         </div>
 
         <form id="registrationForm" class="space-y-4">
-          <!-- Medan Nama Penuh -->
+          <!-- Nama Penuh -->
           <div>
-            <label for="fullName" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label for="fullName" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
               <i class="fa-regular fa-user mr-1 text-cyan-600"></i> Nama Penuh
             </label>
             <input 
@@ -94,13 +99,13 @@
               name="fullName" 
               required 
               placeholder="cth: Ahmad bin Abdullah" 
-              class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400/30 outline-none text-slate-800 transition duration-200 bg-white/80 font-medium text-sm"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400/30 outline-none text-slate-800 text-sm bg-white"
             >
           </div>
 
-          <!-- Medan No Gaji -->
+          <!-- No Gaji -->
           <div>
-            <label for="salaryNo" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label for="salaryNo" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
               <i class="fa-solid fa-id-card-clip mr-1 text-cyan-600"></i> No. Gaji
             </label>
             <input 
@@ -109,13 +114,13 @@
               name="salaryNo" 
               required 
               placeholder="cth: 12345" 
-              class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400/30 outline-none text-slate-800 transition duration-200 bg-white/80 font-medium text-sm"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400/30 outline-none text-slate-800 text-sm bg-white"
             >
           </div>
 
-          <!-- Medan Bahagian / Unit -->
+          <!-- Bahagian / Unit -->
           <div>
-            <label for="department" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label for="department" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
               <i class="fa-solid fa-building-user mr-1 text-cyan-600"></i> Bahagian / Unit
             </label>
             <input 
@@ -124,16 +129,16 @@
               name="department" 
               required 
               placeholder="cth: Unit Maklumat Kewangan & Bajet (UMKB)" 
-              class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400/30 outline-none text-slate-800 transition duration-200 bg-white/80 font-medium text-sm"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400/30 outline-none text-slate-800 text-sm bg-white"
             >
           </div>
 
           <!-- Butang Hantar -->
-          <div class="pt-3">
+          <div class="pt-2">
             <button 
               type="submit" 
               id="submitBtn"
-              class="w-full py-3.5 px-6 rounded-xl font-black text-slate-950 jkew-gradient shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:opacity-95 transform active:scale-[0.99] transition duration-200 flex items-center justify-center gap-2 text-base tracking-wide uppercase cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+              class="w-full py-3.5 px-6 rounded-xl font-black text-slate-950 jkew-gradient shadow-lg shadow-cyan-500/25 hover:opacity-95 transform active:scale-[0.99] transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
             >
               <span id="btnText">Hantar & Dapatkan Pas</span>
               <i id="btnIcon" class="fa-solid fa-arrow-right"></i>
@@ -142,98 +147,78 @@
         </form>
       </div>
 
-      <!-- ================= 2. BAHAGIAN KAD PAS MASUK & KOD QR ================= -->
-      <div id="resultSection" class="hidden animate-pop-in space-y-5">
+      <!-- ================= 2. KAD PAS MASUK & KOD QR ================= -->
+      <div id="resultSection" class="hidden animate-pop-in space-y-4">
         
-        <!-- Notis Pendaftaran Berjaya -->
-        <div class="bg-emerald-500/15 border border-emerald-500/40 rounded-2xl p-4 text-emerald-300 text-center">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500 text-slate-950 font-bold mb-1">
-            <i class="fa-solid fa-check text-sm"></i>
+        <!-- Notis Kejayaan -->
+        <div class="bg-emerald-500/20 border border-emerald-500/40 rounded-2xl p-3.5 text-emerald-300 text-center">
+          <div class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-slate-950 font-bold mb-1">
+            <i class="fa-solid fa-check text-xs"></i>
           </div>
-          <h3 class="text-base font-extrabold text-white">Pendaftaran Berjaya Direkodkan!</h3>
-          <p class="text-xs text-slate-300 mt-0.5">Sila imbas kod QR atau klik butang di bawah untuk memulakan permainan.</p>
+          <h3 class="text-sm font-extrabold text-white">Pendaftaran Telah Diterima!</h3>
+          <p class="text-[11px] text-slate-300">Imbas kod QR atau tekan butang di bawah untuk mula bermain.</p>
         </div>
 
-        <!-- Kad Rekaan Poster JKEW E-GAMES -->
-        <div class="relative w-full rounded-[2rem] p-6 shadow-2xl jkew-poster-bg border-4 border-white/60 overflow-hidden flex flex-col items-center text-center">
-          
-          <!-- Garis Hitam Minimalis Atas -->
-          <div class="w-11/12 h-[3px] bg-slate-900 rounded-full mb-6"></div>
+        <!-- Poster Kad JKEW -->
+        <div class="relative w-full rounded-[2rem] p-5 sm:p-6 shadow-2xl jkew-poster-bg border-4 border-white/70 overflow-hidden flex flex-col items-center text-center">
+          <div class="w-11/12 h-[3px] bg-slate-900 rounded-full mb-4"></div>
 
-          <!-- Tajuk Poster -->
-          <div class="mb-6">
-            <h2 class="poster-font font-black text-4xl sm:text-5xl text-slate-950 tracking-tight leading-none drop-shadow-sm">
-              JKEW
-            </h2>
-            <h3 class="poster-font font-black text-3xl sm:text-4xl text-slate-950 tracking-wider mt-1 drop-shadow-sm">
-              E-GAMES
-            </h3>
+          <div class="mb-4">
+            <h2 class="poster-font font-black text-3xl sm:text-4xl text-slate-950 leading-none">JKEW</h2>
+            <h3 class="poster-font font-black text-2xl sm:text-3xl text-slate-950 tracking-wider mt-0.5">E-GAMES</h3>
           </div>
 
-          <!-- Kontena Kad Putih Kod QR -->
-          <div class="relative w-full max-w-[280px] bg-white rounded-3xl p-5 shadow-xl border-2 border-slate-900/10 flex flex-col items-center">
-            
-            <!-- Hiasan Garisan Sudut (Corner Frames) -->
+          <!-- Petak QR -->
+          <div class="relative w-full max-w-[250px] bg-white rounded-3xl p-4 shadow-xl border-2 border-slate-900/10 flex flex-col items-center">
             <div class="relative p-2 flex items-center justify-center">
-              <span class="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-slate-900 rounded-tl-lg pointer-events-none"></span>
-              <span class="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-slate-900 rounded-tr-lg pointer-events-none"></span>
-              <span class="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-slate-900 rounded-bl-lg pointer-events-none"></span>
-              <span class="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-slate-900 rounded-br-lg pointer-events-none"></span>
-              
-              <!-- Penjana Kod QR -->
+              <span class="absolute top-0 left-0 w-5 h-5 border-t-4 border-l-4 border-slate-900 rounded-tl-md"></span>
+              <span class="absolute top-0 right-0 w-5 h-5 border-t-4 border-r-4 border-slate-900 rounded-tr-md"></span>
+              <span class="absolute bottom-0 left-0 w-5 h-5 border-b-4 border-l-4 border-slate-900 rounded-bl-md"></span>
+              <span class="absolute bottom-0 right-0 w-5 h-5 border-b-4 border-r-4 border-slate-900 rounded-br-md"></span>
               <div id="qrcode" class="p-1 flex items-center justify-center"></div>
             </div>
-            
-            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-3">
-              Imbas Untuk Main
-            </p>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-2">Imbas Untuk Main</p>
           </div>
 
-          <!-- Maklumat Peserta Ringkas -->
-          <div class="mt-5 w-full bg-slate-950/80 backdrop-blur-md rounded-2xl py-3 px-4 text-left text-white text-xs border border-white/20">
+          <!-- Info Peserta -->
+          <div class="mt-4 w-full bg-slate-950/85 backdrop-blur-md rounded-2xl py-2.5 px-3.5 text-left text-white text-xs border border-white/20">
             <div class="grid grid-cols-3 gap-1">
-              <span class="text-slate-400 font-medium">Nama:</span>
+              <span class="text-slate-400">Nama:</span>
               <span id="dispName" class="col-span-2 font-bold text-cyan-300 truncate">-</span>
-              
-              <span class="text-slate-400 font-medium">No. Gaji:</span>
+              <span class="text-slate-400">No. Gaji:</span>
               <span id="dispSalary" class="col-span-2 font-bold text-yellow-300">-</span>
-              
-              <span class="text-slate-400 font-medium">Bahagian:</span>
+              <span class="text-slate-400">Bahagian:</span>
               <span id="dispDept" class="col-span-2 font-bold text-slate-200 truncate">-</span>
             </div>
           </div>
         </div>
 
-        <!-- Butang Pautan Terus & Tindakan Tambahan -->
-        <div class="space-y-3 pt-2">
-          <!-- Butang Link Boleh Diklik -->
+        <!-- Butang Akses Permainan -->
+        <div class="space-y-2 pt-1">
           <a 
             href="https://jnolai.github.io/tembak-gagak-v3" 
             target="_blank" 
             rel="noopener noreferrer" 
-            class="w-full py-4 px-6 rounded-2xl font-black text-slate-950 jkew-gradient shadow-xl shadow-cyan-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-3 text-center text-sm sm:text-base uppercase tracking-wider block"
+            class="w-full py-3.5 px-4 rounded-xl font-black text-slate-950 jkew-gradient shadow-xl hover:scale-[1.01] active:scale-[0.98] transition flex items-center justify-center gap-2 text-center text-sm uppercase tracking-wider block"
           >
-            <i class="fa-solid fa-gamepad text-lg animate-bounce"></i>
+            <i class="fa-solid fa-gamepad animate-bounce"></i>
             <span>Masuk ke Pautan Permainan</span>
             <i class="fa-solid fa-up-right-from-square text-xs"></i>
           </a>
 
-          <!-- Salin Pautan & Daftar Semula -->
           <div class="flex items-center gap-2">
             <button 
               type="button" 
               id="copyLinkBtn" 
-              class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 cursor-pointer"
+              class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5"
             >
               <i class="fa-regular fa-copy"></i>
-              <span id="copyBtnText">Salin Pautan Permainan</span>
+              <span id="copyBtnText">Salin Pautan</span>
             </button>
-
             <button 
               type="button" 
               id="resetFormBtn" 
-              class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold text-xs transition duration-200 flex items-center justify-center gap-1.5 cursor-pointer" 
-              title="Isi Borang Baru"
+              class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5"
             >
               <i class="fa-solid fa-rotate-left"></i>
               <span>Borang Baru</span>
@@ -246,22 +231,98 @@
     </div>
   </main>
 
+  <!-- ================= 3. MODAL PANEL URUS SETIA / ADMIN ================= -->
+  <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl text-slate-200 overflow-hidden">
+      
+      <!-- Tajuk Modal -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-users-gear text-sm"></i>
+          </div>
+          <h3 class="font-bold text-white text-base">Panel Urus Setia JKEW</h3>
+        </div>
+        <button id="closeAdminModalBtn" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Bahagian Password (Sekiranya belum login) -->
+      <div id="adminAuthBox" class="p-6 text-center space-y-4">
+        <p class="text-xs text-slate-400">Masukkan kata laluan pentadbir untuk mengakses senarai peserta:</p>
+        <div class="max-w-xs mx-auto flex gap-2">
+          <input 
+            type="password" 
+            id="adminPassInput" 
+            placeholder="Kata Laluan" 
+            class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm outline-none focus:border-cyan-500"
+          >
+          <button 
+            type="button" 
+            id="adminLoginBtn" 
+            class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs uppercase"
+          >
+            Masuk
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-500">Kata laluan: <span class="text-slate-400 font-mono">jkew2026</span></p>
+      </div>
+
+      <!-- Bahagian Senarai & Butang Muat Turun PDF -->
+      <div id="adminContentBox" class="p-4 sm:p-5 flex-1 flex flex-col space-y-4 overflow-hidden hidden">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-xs text-slate-400">Jumlah Peserta Disimpan:</span>
+            <span id="participantCount" class="font-bold text-cyan-400 ml-1">0</span>
+          </div>
+
+          <button 
+            type="button" 
+            id="downloadPdfBtn"
+            class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition"
+          >
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Muat Turun PDF</span>
+          </button>
+        </div>
+
+        <!-- Jadual Data Peserta -->
+        <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/50">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 sticky top-0 text-slate-300">
+              <tr>
+                <th class="p-2.5">#</th>
+                <th class="p-2.5">Nama Penuh</th>
+                <th class="p-2.5">No. Gaji</th>
+                <th class="p-2.5">Bahagian/Unit</th>
+              </tr>
+            </thead>
+            <tbody id="participantTableBody" class="divide-y divide-slate-800 text-slate-300">
+              <!-- Baris data dijana melalui JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Footer -->
-  <footer class="w-full py-4 text-center text-xs text-slate-500 border-t border-slate-800 bg-slate-950/60">
+  <footer class="w-full py-3.5 text-center text-xs text-slate-500 border-t border-slate-800 bg-slate-950/80">
     <p>© 2026 JKEW E-GAMES. Hak Cipta Terpelihara. UMKB</p>
   </footer>
 
-  <!-- Logik Aplikasi JavaScript -->
+  <!-- Javascript -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // URL Web App Google Apps Script & Sasaran Permainan
       const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeR44MjBXcJgQJmpZfZObwcU143uDJImQY-pxKpCWpeUmzTAjDj3jKPKuq8KKm1lHO/exec";
       const TARGET_GAME_URL = "https://jnolai.github.io/tembak-gagak-v3";
 
       const form = document.getElementById('registrationForm');
       const formSection = document.getElementById('formSection');
       const resultSection = document.getElementById('resultSection');
-      
+
       const fullNameInput = document.getElementById('fullName');
       const salaryNoInput = document.getElementById('salaryNo');
       const departmentInput = document.getElementById('department');
@@ -273,127 +334,202 @@
       const dispName = document.getElementById('dispName');
       const dispSalary = document.getElementById('dispSalary');
       const dispDept = document.getElementById('dispDept');
-
       const qrcodeContainer = document.getElementById('qrcode');
-      const copyLinkBtn = document.getElementById('copyLinkBtn');
-      const copyBtnText = document.getElementById('copyBtnText');
-      const resetFormBtn = document.getElementById('resetFormBtn');
 
-      let qrcodeInstance = null;
+      // Admin Modal Elemen
+      const openAdminModalBtn = document.getElementById('openAdminModalBtn');
+      const closeAdminModalBtn = document.getElementById('closeAdminModalBtn');
+      const adminModal = document.getElementById('adminModal');
+      const adminAuthBox = document.getElementById('adminAuthBox');
+      const adminContentBox = document.getElementById('adminContentBox');
+      const adminPassInput = document.getElementById('adminPassInput');
+      const adminLoginBtn = document.getElementById('adminLoginBtn');
+      const participantCount = document.getElementById('participantCount');
+      const participantTableBody = document.getElementById('participantTableBody');
+      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
-      // Fungsi menjana kod QR
       function generateQRCode(text) {
         qrcodeContainer.innerHTML = '';
         try {
-          qrcodeInstance = new QRCode(qrcodeContainer, {
+          new QRCode(qrcodeContainer, {
             text: text,
-            width: 190,
-            height: 190,
+            width: 170,
+            height: 170,
             colorDark: "#000000",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
           });
         } catch (e) {
-          const qrImg = document.createElement('img');
-          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encodeURIComponent(text)}`;
-          qrImg.alt = "QR Code Permainan";
-          qrImg.className = "w-[190px] h-[190px]";
-          qrcodeContainer.appendChild(qrImg);
+          const img = document.createElement('img');
+          img.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(text)}`;
+          img.className = "w-[170px] h-[170px]";
+          qrcodeContainer.appendChild(img);
         }
       }
 
-      // Kendalikan penghantaran borang
+      // Hantar Borang
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const nama = fullNameInput.value.trim();
+        const noGaji = salaryNoInput.value.trim();
+        const bahagian = departmentInput.value.trim();
 
-        const nameVal = fullNameInput.value.trim();
-        const salaryVal = salaryNoInput.value.trim();
-        const deptVal = departmentInput.value.trim();
+        if (!nama || !noGaji || !bahagian) return;
 
-        if (!nameVal || !salaryVal || !deptVal) {
-          return;
-        }
-
-        // Kunci butang & tunjukkan animasi loading
         submitBtn.disabled = true;
         btnText.textContent = "Merekodkan...";
         btnIcon.className = "fa-solid fa-spinner fa-spin";
 
-        const participantData = {
-          nama: nameVal,
-          noGaji: salaryVal,
-          bahagian: deptVal,
-          timestamp: new Date().toISOString()
+        const record = {
+          nama: nama,
+          noGaji: noGaji,
+          bahagian: bahagian,
+          timestamp: new Date().toLocaleString('ms-MY')
         };
 
-        // 1. Simpan sandaran dalam localStorage
+        // Simpan tempatan (localStorage)
         try {
-          const storedParticipants = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
-          storedParticipants.push(participantData);
-          localStorage.setItem('jkew_participants', JSON.stringify(storedParticipants));
-          localStorage.setItem('jkew_last_participant', JSON.stringify(participantData));
+          const list = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
+          list.push(record);
+          localStorage.setItem('jkew_participants', JSON.stringify(list));
         } catch (err) {
-          console.warn("localStorage tidak dapat diakses:", err);
+          console.warn("Storage error", err);
         }
 
-        // 2. Hantar rekod ke Google Sheets melalui Google Apps Script Web App
+        // Hantar ke Google Sheet Web App
         try {
           await fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(participantData)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(record)
           });
-        } catch (error) {
-          console.error("Ralat semasa menghantar ke Google Sheets:", error);
+        } catch (err) {
+          console.error("Google Sheets error", err);
         } finally {
-          // Pulihkan status butang
           submitBtn.disabled = false;
           btnText.textContent = "Hantar & Dapatkan Pas";
           btnIcon.className = "fa-solid fa-arrow-right";
         }
 
-        // 3. Paparkan maklumat pada kad & hasilkan QR Code
-        dispName.textContent = nameVal;
-        dispSalary.textContent = salaryVal;
-        dispDept.textContent = deptVal;
+        dispName.textContent = nama;
+        dispSalary.textContent = noGaji;
+        dispDept.textContent = bahagian;
 
         generateQRCode(TARGET_GAME_URL);
 
-        // Tukar ke paparan kad pas QR
         formSection.classList.add('hidden');
         resultSection.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
-      // Salin pautan ke papan keratan (clipboard)
-      copyLinkBtn.addEventListener('click', () => {
-        const tempInput = document.createElement('input');
-        tempInput.value = TARGET_GAME_URL;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        try {
-          document.execCommand('copy');
-          copyBtnText.textContent = "Pautan Berjaya Disalin!";
-          copyLinkBtn.classList.add('bg-emerald-700', 'text-white');
-          setTimeout(() => {
-            copyBtnText.textContent = "Salin Pautan Permainan";
-            copyLinkBtn.classList.remove('bg-emerald-700', 'text-white');
-          }, 2500);
-        } catch (e) {
-          copyBtnText.textContent = "Gagal menyalin";
-        }
-        document.body.removeChild(tempInput);
+      // Salin Pautan & Butang Reset
+      document.getElementById('copyLinkBtn').addEventListener('click', () => {
+        const inp = document.createElement('input');
+        inp.value = TARGET_GAME_URL;
+        document.body.appendChild(inp);
+        inp.select();
+        document.execCommand('copy');
+        document.body.removeChild(inp);
+        document.getElementById('copyBtnText').textContent = "Pautan Disalin!";
+        setTimeout(() => {
+          document.getElementById('copyBtnText').textContent = "Salin Pautan";
+        }, 2000);
       });
 
-      // Butang isi semula borang
-      resetFormBtn.addEventListener('click', () => {
+      document.getElementById('resetFormBtn').addEventListener('click', () => {
         form.reset();
         resultSection.classList.add('hidden');
         formSection.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Modal Admin
+      openAdminModalBtn.addEventListener('click', () => {
+        adminModal.classList.remove('hidden');
+        adminModal.classList.add('flex');
+      });
+      closeAdminModalBtn.addEventListener('click', () => {
+        adminModal.classList.add('hidden');
+        adminModal.classList.remove('flex');
+      });
+
+      // Login Admin
+      adminLoginBtn.addEventListener('click', () => {
+        if (adminPassInput.value === 'jkew2026' || adminPassInput.value === 'admin') {
+          adminAuthBox.classList.add('hidden');
+          adminContentBox.classList.remove('hidden');
+          loadAdminTable();
+        } else {
+          alert('Kata laluan tidak sah!');
+        }
+      });
+
+      function loadAdminTable() {
+        const list = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
+        participantCount.textContent = list.length;
+        participantTableBody.innerHTML = '';
+
+        if (list.length === 0) {
+          participantTableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Tiada rekod pendaftaran lagi.</td></tr>`;
+          return;
+        }
+
+        list.forEach((item, idx) => {
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-900/60";
+          tr.innerHTML = `
+            <td class="p-2.5 font-bold text-slate-500">${idx + 1}</td>
+            <td class="p-2.5 font-semibold text-white">${item.nama}</td>
+            <td class="p-2.5 font-mono text-yellow-300">${item.noGaji}</td>
+            <td class="p-2.5 text-slate-300">${item.bahagian}</td>
+          `;
+          participantTableBody.appendChild(tr);
+        });
+      }
+
+      // Jana & Muat Turun PDF
+      downloadPdfBtn.addEventListener('click', () => {
+        const list = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
+        if (list.length === 0) {
+          alert('Tiada data untuk dimuat turun!');
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+        // Header Dokumen
+        doc.setFontSize(16);
+        doc.setTextColor(2, 132, 199);
+        doc.text("JABATAN KEWANGAN (JKEW) DBKL", 14, 18);
+
+        doc.setFontSize(12);
+        doc.setTextColor(30, 41, 59);
+        doc.text("SENARAI PENYERTAAN JKEW E-GAMES 2026", 14, 25);
+
+        doc.setFontSize(9);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Tarikh Cetakan: ${new Date().toLocaleString('ms-MY')} | Jumlah Peserta: ${list.length}`, 14, 31);
+
+        const tableData = list.map((item, index) => [
+          index + 1,
+          item.nama,
+          item.noGaji,
+          item.bahagian,
+          item.timestamp || '-'
+        ]);
+
+        doc.autoTable({
+          startY: 36,
+          head: [['No.', 'Nama Peserta', 'No. Gaji', 'Bahagian / Unit', 'Tarikh/Masa']],
+          body: tableData,
+          theme: 'striped',
+          headStyles: { fillColor: [2, 132, 199], textColor: [255, 255, 255], fontStyle: 'bold' },
+          styles: { fontSize: 8.5, cellPadding: 3 }
+        });
+
+        doc.save(`Senarai_Peserta_JKEW_E-GAMES_2026.pdf`);
       });
     });
   </script>
