@@ -230,7 +230,116 @@
     </div>
   </main>
 
-  <!-- ================= 3. MODAL PANEL URUS SETIA / ADMIN ================= -->
+  <!-- ================= 3. POP-UP SYARAT & PERATURAN PERMAINAN ================= -->
+  <div id="rulesModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl text-slate-200 overflow-hidden animate-pop-in">
+      
+      <!-- Pengepala Modal -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center gap-3 bg-slate-900/90">
+        <div class="w-10 h-10 rounded-xl jkew-gradient text-slate-950 flex items-center justify-center text-lg font-black shrink-0">
+          <i class="fa-solid fa-scroll"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-base leading-tight">Syarat & Peraturan Permainan</h3>
+          <p class="text-xs text-cyan-400 font-medium">Ops Kawalan Gagak (Jabatan Challenge e-Games)</p>
+        </div>
+      </div>
+
+      <!-- Kandungan Syarat (Boleh Skrol) -->
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        
+        <!-- Seksyen 1 -->
+        <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
+          <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-1.5 flex items-center gap-2">
+            <i class="fa-regular fa-clock text-amber-400"></i> 1. Format & Tempoh Masa
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 text-xs">
+            <li><strong class="text-white">Masa Permainan:</strong> 60 saat bagi setiap pusingan.</li>
+            <li><strong class="text-white">Fasa Kecemasan:</strong> Amaran khas akan diaktifkan pada 10 saat terakhir.</li>
+            <li><strong class="text-white">Had Rekod Skor:</strong> Sistem hanya merekodkan <span class="text-cyan-300 font-bold">5 markah terbaik</span> setiap pemain ke dalam pangkalan data/papan skor terpusat. Percubaan seterusnya tidak akan menimpa rekod jika kuota telah dipenuhi.</li>
+          </ul>
+        </div>
+
+        <!-- Seksyen 2 -->
+        <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
+          <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-crosshairs text-rose-400"></i> 2. Sasaran & Sistem Pemarkahan
+          </h4>
+          <div class="overflow-hidden rounded-xl border border-slate-700/80">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900/90 text-slate-300 border-b border-slate-700">
+                <tr>
+                  <th class="p-2 font-bold">Sasaran</th>
+                  <th class="p-2 font-bold">Tindakan / Kesan</th>
+                  <th class="p-2 font-bold text-right">Poin</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-700/50">
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2 font-medium text-white flex items-center gap-1.5">🐦‍⬛ Gagak Bandar</td>
+                  <td class="p-2 text-slate-400">Tembak sasaran utama</td>
+                  <td class="p-2 font-bold text-emerald-400 text-right">+10 Mata</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2 font-medium text-white flex items-center gap-1.5">🕊️ Merpati Dilindungi</td>
+                  <td class="p-2 text-slate-400">Tersalah tembak spesies dilindungi</td>
+                  <td class="p-2 font-bold text-rose-400 text-right">-10 Mata</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2 font-medium text-white flex items-center gap-1.5">💣 Bahan Letupan</td>
+                  <td class="p-2 text-slate-400">Tersalah tembak bom/bahan bahaya</td>
+                  <td class="p-2 font-bold text-rose-400 text-right">-15 Mata</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Seksyen 3 -->
+        <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
+          <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-lightbulb text-yellow-300"></i> 3. Pusingan Bonus Kuiz
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 text-xs">
+            <li><strong class="text-white">Syarat Kelayakan:</strong> Berjaya menembak 3 ekor gagak (penunjuk 3/3) untuk mengaktifkan mod kuiz.</li>
+            <li><strong class="text-white">Had Masa Kuiz:</strong> 15 saat untuk menjawab.</li>
+            <li>
+              <strong class="text-white">Skor Kuiz:</strong>
+              <span class="text-emerald-400 font-bold ml-1">Jawapan Betul: +20 Mata</span> | 
+              <span class="text-rose-400 font-bold">Jawapan Salah: -5 Mata</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Seksyen 4 -->
+        <div class="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/60">
+          <h4 class="font-bold text-amber-300 text-xs sm:text-sm uppercase tracking-wide mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-amber-400"></i> 4. Papan Skor (Leaderboard)
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 text-xs">
+            <li>Kedudukan dipaparkan secara langsung menerusi senarai <strong class="text-cyan-300">Top 10 Pemain Terbaik (Live)</strong>.</li>
+            <li>Markah akhir dikira berdasarkan jumlah keseluruhan mata daripada sasaran dan soalan bonus kuiz sebelum masa 60 saat tamat.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Tindakan: Butang Saya Faham -->
+      <div class="p-4 sm:p-5 border-t border-slate-800 bg-slate-900/90 flex flex-col gap-2">
+        <button 
+          type="button" 
+          id="confirmRulesBtn"
+          class="w-full py-3.5 px-6 rounded-xl font-black text-slate-950 jkew-gradient shadow-lg shadow-cyan-500/25 hover:opacity-95 transform active:scale-[0.99] transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider cursor-pointer"
+        >
+          <i class="fa-solid fa-check"></i>
+          <span>Saya Faham & Teruskan</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= 4. MODAL PANEL URUS SETIA / ADMIN ================= -->
   <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl text-slate-200 overflow-hidden">
       
@@ -342,6 +451,10 @@
       const dispDept = document.getElementById('dispDept');
       const qrcodeContainer = document.getElementById('qrcode');
 
+      // Modal Syarat & Peraturan
+      const rulesModal = document.getElementById('rulesModal');
+      const confirmRulesBtn = document.getElementById('confirmRulesBtn');
+
       // Admin Modal Elemen
       const openAdminModalBtn = document.getElementById('openAdminModalBtn');
       const closeAdminModalBtn = document.getElementById('closeAdminModalBtn');
@@ -414,11 +527,22 @@
           btnIcon.className = "fa-solid fa-arrow-right";
         }
 
+        // Simpan data untuk dipaparkan pada kad
         dispName.textContent = nama;
         dispSalary.textContent = noGaji;
         dispDept.textContent = bahagian;
 
         generateQRCode(TARGET_GAME_URL);
+
+        // Buka Pop-up Syarat & Peraturan Permainan dahulu
+        rulesModal.classList.remove('hidden');
+        rulesModal.classList.add('flex');
+      });
+
+      // Klik 'Saya Faham & Teruskan' -> Tutup Pop-up & Paparkan Kad QR
+      confirmRulesBtn.addEventListener('click', () => {
+        rulesModal.classList.add('hidden');
+        rulesModal.classList.remove('flex');
 
         formSection.classList.add('hidden');
         resultSection.classList.remove('hidden');
@@ -453,7 +577,7 @@
         adminPassInput.focus();
       });
 
-      // Tutup & Reset Sesi Modal
+      // Tutup & Reset Sesi Modal Admin
       function resetAndCloseAdminModal() {
         adminModal.classList.add('hidden');
         adminModal.classList.remove('flex');
