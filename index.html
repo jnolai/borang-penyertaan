@@ -38,6 +38,11 @@
       0% { opacity: 0; transform: scale(0.94) translateY(15px); }
       100% { opacity: 1; transform: scale(1) translateY(0); }
     }
+    /* Custom scrollbar untuk senarai unit */
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.6); }
   </style>
 </head>
 <body class="min-h-screen bg-slate-900 text-slate-800 flex flex-col justify-between selection:bg-cyan-500 selection:text-white relative overflow-x-hidden">
@@ -353,10 +358,10 @@
 
   <!-- ================= 4. MODAL PANEL URUS SETIA / ADMIN ================= -->
   <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl text-slate-200 overflow-hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl text-slate-200 overflow-hidden">
       
       <!-- Tajuk Modal -->
-      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
             <i class="fa-solid fa-shield-halved text-sm"></i>
@@ -389,12 +394,14 @@
         <p id="authErrorMsg" class="text-xs text-rose-400 font-medium hidden">Kata laluan tidak sah. Sila cuba lagi.</p>
       </div>
 
-      <!-- Bahagian Senarai & Butang Muat Turun PDF -->
-      <div id="adminContentBox" class="p-4 sm:p-5 flex-1 flex flex-col space-y-3 overflow-hidden hidden">
+      <!-- Bahagian Senarai, Pecahan Unit & Butang Muat Turun PDF -->
+      <div id="adminContentBox" class="p-4 sm:p-5 flex-1 flex flex-col space-y-3 overflow-y-auto custom-scrollbar hidden">
+        
+        <!-- Bar Kawalan Atas -->
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-400">Jumlah Peserta:</span>
-            <span id="participantCount" class="font-bold text-cyan-400">0</span>
+            <span id="participantCount" class="font-bold text-cyan-400 text-sm">0</span>
             <button id="refreshDataBtn" class="ml-2 text-xs text-slate-400 hover:text-cyan-300 p-1 cursor-pointer" title="Muat semula data dari DB">
               <i id="refreshIcon" class="fa-solid fa-arrows-rotate"></i>
             </button>
@@ -411,6 +418,35 @@
             <i class="fa-solid fa-file-pdf"></i>
             <span>Muat Turun PDF</span>
           </button>
+        </div>
+
+        <!-- Seksyen Pecahan Mengikut Bahagian / Unit -->
+        <div class="bg-slate-800/40 border border-slate-700/80 rounded-2xl p-3">
+          <div class="flex items-center justify-between mb-2">
+            <button 
+              type="button" 
+              id="toggleBreakdownBtn" 
+              class="flex items-center gap-2 text-xs font-bold text-cyan-300 hover:text-cyan-200 cursor-pointer"
+            >
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Pecahan Peserta Mengikut Bahagian / Unit</span>
+              <i id="breakdownChevron" class="fa-solid fa-chevron-up text-[10px] transition-transform"></i>
+            </button>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-slate-400 hidden sm:inline">Klik unit untuk tapis senarai</span>
+              <button 
+                type="button" 
+                id="resetDeptFilterBtn" 
+                class="hidden px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-500/40 text-[10px] font-bold cursor-pointer"
+              >
+                <i class="fa-solid fa-filter-circle-xmark mr-1"></i>Papar Semua
+              </button>
+            </div>
+          </div>
+
+          <div id="deptBreakdownGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+            <!-- Kad pecahan unit dijana melalui JS -->
+          </div>
         </div>
 
         <!-- Bar Carian No. Gaji -->
@@ -435,9 +471,9 @@
         </div>
 
         <!-- Jadual Data Peserta dengan Tarikh/Masa -->
-        <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/50 min-h-[240px]">
+        <div class="flex-1 overflow-y-auto custom-scrollbar border border-slate-800 rounded-xl bg-slate-950/50 min-h-[200px]">
           <table class="w-full text-left text-xs whitespace-nowrap">
-            <thead class="bg-slate-800/80 sticky top-0 text-slate-300">
+            <thead class="bg-slate-800/90 sticky top-0 text-slate-300 z-10">
               <tr>
                 <th class="p-2.5">#</th>
                 <th class="p-2.5">Nama Penuh</th>
@@ -468,7 +504,22 @@
       const TARGET_GAME_URL = "https://jnolai.github.io/tembak-gagak-v3";
       const ADMIN_SECRET = "UMKB13813";
 
+      const JKEW_DEPARTMENTS = [
+        "Unit Belanjawan & Kawalan Peruntukan",
+        "Unit Pembiayaan Pembangunan",
+        "Unit Penswastaan Dan Takaful",
+        "Unit Endowmen",
+        "Unit Pentadbiran Dan Pelaburan",
+        "Unit Pembayaran",
+        "Unit Emolumen Dan Inventori",
+        "Unit Perakaunan",
+        "Unit Maklumat Kewangan Berkomputer",
+        "Unit Pengurusan Hasil Cukai dan Kawalan Tunggakan",
+        "Unit Pengurusan Hasil Bukan Cukai dan Terimaan Kutipan"
+      ];
+
       let globalParticipants = [];
+      let selectedDepartmentFilter = ''; // Menyimpan unit yang ditapis jika diklik
       let autoSyncInterval = null; // Pemasa untuk auto sync
 
       const form = document.getElementById('registrationForm');
@@ -508,6 +559,12 @@
       const refreshIcon = document.getElementById('refreshIcon');
       const searchSalaryInput = document.getElementById('searchSalaryInput');
       const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+      // Elemen Pecahan Bahagian/Unit
+      const deptBreakdownGrid = document.getElementById('deptBreakdownGrid');
+      const toggleBreakdownBtn = document.getElementById('toggleBreakdownBtn');
+      const breakdownChevron = document.getElementById('breakdownChevron');
+      const resetDeptFilterBtn = document.getElementById('resetDeptFilterBtn');
 
       function generateQRCode(text) {
         qrcodeContainer.innerHTML = '';
@@ -644,6 +701,8 @@
         authErrorMsg.classList.add('hidden');
         searchSalaryInput.value = '';
         clearSearchBtn.classList.add('hidden');
+        selectedDepartmentFilter = '';
+        resetDeptFilterBtn.classList.add('hidden');
       }
 
       closeAdminModalBtn.addEventListener('click', resetAndCloseAdminModal);
@@ -654,6 +713,7 @@
           authErrorMsg.classList.add('hidden');
           adminAuthBox.classList.add('hidden');
           adminContentBox.classList.remove('hidden');
+          renderDepartmentBreakdown();
           fetchLiveSheetData(false);
           startAutoSync(); // Aktifkan kitaran sync setiap 1 minit
         } else {
@@ -673,14 +733,95 @@
         startAutoSync(); // Reset semula kitaran 1 minit dari masa klik
       });
 
-      // Fungsi Tapis Senarai Mengikut Carian No. Gaji
+      // Toggle Paparan Grid Pecahan Bahagian
+      toggleBreakdownBtn.addEventListener('click', () => {
+        const isHidden = deptBreakdownGrid.classList.toggle('hidden');
+        breakdownChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      });
+
+      // Reset Penapis Bahagian
+      resetDeptFilterBtn.addEventListener('click', () => {
+        selectedDepartmentFilter = '';
+        resetDeptFilterBtn.classList.add('hidden');
+        renderDepartmentBreakdown();
+        renderAdminTable(getFilteredParticipants());
+      });
+
+      // Kira Pecahan Peserta Mengikut Bahagian/Unit
+      function getDepartmentCounts() {
+        const counts = {};
+        JKEW_DEPARTMENTS.forEach(dept => {
+          counts[dept] = 0;
+        });
+
+        globalParticipants.forEach(item => {
+          const deptName = (item.bahagian || item.department || '').trim();
+          if (deptName) {
+            if (Object.prototype.hasOwnProperty.call(counts, deptName)) {
+              counts[deptName]++;
+            } else {
+              // Jika ada nama unit lain di luar senarai rasmi
+              counts[deptName] = (counts[deptName] || 0) + 1;
+            }
+          }
+        });
+
+        return counts;
+      }
+
+      // Papar Kad Pecahan Mengikut Bahagian/Unit
+      function renderDepartmentBreakdown() {
+        const counts = getDepartmentCounts();
+        deptBreakdownGrid.innerHTML = '';
+
+        Object.entries(counts).forEach(([dept, count]) => {
+          const isSelected = selectedDepartmentFilter === dept;
+          const card = document.createElement('button');
+          card.type = 'button';
+          card.title = `Klik untuk tapis: ${dept}`;
+          card.className = `flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl border text-left transition cursor-pointer ${
+            isSelected
+              ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-sm'
+              : 'bg-slate-900/70 hover:bg-slate-800 border-slate-700/70 text-slate-300'
+          }`;
+
+          const badgeClass = count > 0
+            ? (isSelected ? 'bg-cyan-400 text-slate-950' : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30')
+            : 'bg-slate-800 text-slate-500';
+
+          card.innerHTML = `
+            <span class="text-[11px] leading-tight truncate font-medium">${dept}</span>
+            <span class="shrink-0 px-2 py-0.5 rounded-lg text-[11px] font-extrabold font-mono ${badgeClass}">${count}</span>
+          `;
+
+          card.addEventListener('click', () => {
+            if (selectedDepartmentFilter === dept) {
+              selectedDepartmentFilter = '';
+              resetDeptFilterBtn.classList.add('hidden');
+            } else {
+              selectedDepartmentFilter = dept;
+              resetDeptFilterBtn.classList.remove('hidden');
+            }
+            renderDepartmentBreakdown();
+            renderAdminTable(getFilteredParticipants());
+          });
+
+          deptBreakdownGrid.appendChild(card);
+        });
+      }
+
+      // Fungsi Tapis Senarai Mengikut Carian No. Gaji & Bahagian/Unit
       function getFilteredParticipants() {
         const keyword = searchSalaryInput.value.trim().toLowerCase();
-        if (!keyword) return globalParticipants;
 
         return globalParticipants.filter(item => {
           const noGaji = String(item.noGaji || item.salaryNo || '').toLowerCase();
-          return noGaji.includes(keyword);
+          const dept = (item.bahagian || item.department || '').trim();
+
+          const matchesSalary = !keyword || noGaji.includes(keyword);
+          const matchesDept = !selectedDepartmentFilter || dept === selectedDepartmentFilter;
+
+          return matchesSalary && matchesDept;
         });
       }
 
@@ -699,7 +840,7 @@
         searchSalaryInput.value = '';
         clearSearchBtn.classList.add('hidden');
         searchSalaryInput.focus();
-        renderAdminTable(globalParticipants);
+        renderAdminTable(getFilteredParticipants());
       });
 
       // Tarik Data Langsung Dari Google Sheet (Live Fetch)
@@ -715,12 +856,14 @@
           const res = await fetch(SCRIPT_URL);
           const data = await res.json();
           globalParticipants = Array.isArray(data) ? data : [];
+          renderDepartmentBreakdown();
           renderAdminTable(getFilteredParticipants());
         } catch (err) {
           console.warn("Gagal tarik online, fallback ke local:", err);
           if (globalParticipants.length === 0) {
             const localList = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
             globalParticipants = localList.filter(item => item && (item.nama || item.name));
+            renderDepartmentBreakdown();
             renderAdminTable(getFilteredParticipants());
           }
         } finally {
@@ -729,17 +872,23 @@
       }
 
       function renderAdminTable(list) {
-        const isSearching = searchSalaryInput.value.trim().length > 0;
-        participantCount.textContent = isSearching 
+        const isFiltered = searchSalaryInput.value.trim().length > 0 || selectedDepartmentFilter !== '';
+        participantCount.textContent = isFiltered 
           ? `${list.length} / ${globalParticipants.length}` 
           : globalParticipants.length;
 
         participantTableBody.innerHTML = '';
 
         if (!list || list.length === 0) {
-          const emptyMsg = isSearching 
-            ? `Tiada rekod dijumpai bagi No. Gaji "${searchSalaryInput.value.trim()}".`
-            : 'Tiada rekod pendaftaran dijumpai.';
+          let emptyMsg = 'Tiada rekod pendaftaran dijumpai.';
+          if (searchSalaryInput.value.trim().length > 0 && selectedDepartmentFilter) {
+            emptyMsg = `Tiada rekod bagi No. Gaji "${searchSalaryInput.value.trim()}" dalam ${selectedDepartmentFilter}.`;
+          } else if (searchSalaryInput.value.trim().length > 0) {
+            emptyMsg = `Tiada rekod dijumpai bagi No. Gaji "${searchSalaryInput.value.trim()}".`;
+          } else if (selectedDepartmentFilter) {
+            emptyMsg = `Tiada peserta berdaftar dari ${selectedDepartmentFilter}.`;
+          }
+
           participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">${emptyMsg}</td></tr>`;
           return;
         }
@@ -763,7 +912,7 @@
         });
       }
 
-      // Jana & Muat Turun PDF
+      // Jana & Muat Turun PDF (Termasuk Ringkasan Pecahan Bahagian/Unit)
       downloadPdfBtn.addEventListener('click', () => {
         const exportList = getFilteredParticipants();
 
@@ -785,7 +934,35 @@
 
         doc.setFontSize(8.5);
         doc.setTextColor(100, 116, 139);
-        doc.text(`Tarikh Cetakan: ${new Date().toLocaleString('ms-MY')} | Jumlah Peserta: ${exportList.length}`, 14, 31);
+        const filterLabel = selectedDepartmentFilter ? ` | Unit: ${selectedDepartmentFilter}` : '';
+        doc.text(`Tarikh Cetakan: ${new Date().toLocaleString('ms-MY')} | Jumlah Peserta: ${exportList.length}${filterLabel}`, 14, 31);
+
+        let nextStartY = 36;
+
+        // Jika tidak ditapis mengikut unit tertentu, paparkan jadual ringkasan pecahan unit
+        if (!selectedDepartmentFilter) {
+          const counts = getDepartmentCounts();
+          const summaryData = Object.entries(counts).map(([dept, count], idx) => [
+            idx + 1,
+            dept,
+            count
+          ]);
+
+          doc.autoTable({
+            startY: nextStartY,
+            head: [['Bil.', 'Pecahan Mengikut Bahagian / Unit', 'Jumlah Peserta']],
+            body: summaryData,
+            theme: 'grid',
+            headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+            columnStyles: {
+              0: { cellWidth: 12, halign: 'center' },
+              2: { cellWidth: 32, halign: 'center', fontStyle: 'bold' }
+            },
+            styles: { fontSize: 8, cellPadding: 2 }
+          });
+
+          nextStartY = doc.lastAutoTable.finalY + 8;
+        }
 
         const tableData = exportList.map((item, index) => [
           index + 1,
@@ -796,7 +973,7 @@
         ]);
 
         doc.autoTable({
-          startY: 36,
+          startY: nextStartY,
           head: [['No.', 'Nama Peserta', 'No. Gaji', 'Bahagian / Unit', 'Tarikh & Waktu']],
           body: tableData,
           theme: 'striped',
