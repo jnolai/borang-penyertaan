@@ -64,7 +64,7 @@
       <!-- Butang Admin -->
       <button 
         type="button" 
-        id="openAdminModalBtn"
+        id="openAdminModalBtn" 
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition cursor-pointer"
       >
         <i class="fa-solid fa-shield-halved"></i>
@@ -390,7 +390,7 @@
       </div>
 
       <!-- Bahagian Senarai & Butang Muat Turun PDF -->
-      <div id="adminContentBox" class="p-4 sm:p-5 flex-1 flex flex-col space-y-4 overflow-hidden hidden">
+      <div id="adminContentBox" class="p-4 sm:p-5 flex-1 flex flex-col space-y-3 overflow-hidden hidden">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-400">Jumlah Peserta:</span>
@@ -410,6 +410,27 @@
           >
             <i class="fa-solid fa-file-pdf"></i>
             <span>Muat Turun PDF</span>
+          </button>
+        </div>
+
+        <!-- Bar Carian No. Gaji -->
+        <div class="relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+          </div>
+          <input 
+            type="text" 
+            id="searchSalaryInput" 
+            placeholder="Cari mengikut No. Gaji (cth: 12345)..." 
+            class="w-full pl-9 pr-9 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-400 text-xs outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+          >
+          <button 
+            type="button" 
+            id="clearSearchBtn" 
+            class="hidden absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white cursor-pointer" 
+            title="Padam carian"
+          >
+            <i class="fa-solid fa-circle-xmark text-xs"></i>
           </button>
         </div>
 
@@ -485,6 +506,8 @@
       const downloadPdfBtn = document.getElementById('downloadPdfBtn');
       const refreshDataBtn = document.getElementById('refreshDataBtn');
       const refreshIcon = document.getElementById('refreshIcon');
+      const searchSalaryInput = document.getElementById('searchSalaryInput');
+      const clearSearchBtn = document.getElementById('clearSearchBtn');
 
       function generateQRCode(text) {
         qrcodeContainer.innerHTML = '';
@@ -619,6 +642,8 @@
         adminContentBox.classList.add('hidden');
         adminPassInput.value = '';
         authErrorMsg.classList.add('hidden');
+        searchSalaryInput.value = '';
+        clearSearchBtn.classList.add('hidden');
       }
 
       closeAdminModalBtn.addEventListener('click', resetAndCloseAdminModal);
@@ -648,6 +673,35 @@
         startAutoSync(); // Reset semula kitaran 1 minit dari masa klik
       });
 
+      // Fungsi Tapis Senarai Mengikut Carian No. Gaji
+      function getFilteredParticipants() {
+        const keyword = searchSalaryInput.value.trim().toLowerCase();
+        if (!keyword) return globalParticipants;
+
+        return globalParticipants.filter(item => {
+          const noGaji = String(item.noGaji || item.salaryNo || '').toLowerCase();
+          return noGaji.includes(keyword);
+        });
+      }
+
+      // Event Listener untuk Input Carian No. Gaji
+      searchSalaryInput.addEventListener('input', () => {
+        if (searchSalaryInput.value.trim().length > 0) {
+          clearSearchBtn.classList.remove('hidden');
+        } else {
+          clearSearchBtn.classList.add('hidden');
+        }
+        renderAdminTable(getFilteredParticipants());
+      });
+
+      // Butang Padam Carian
+      clearSearchBtn.addEventListener('click', () => {
+        searchSalaryInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        searchSalaryInput.focus();
+        renderAdminTable(globalParticipants);
+      });
+
       // Tarik Data Langsung Dari Google Sheet (Live Fetch)
       async function fetchLiveSheetData(isSilent = false) {
         if (refreshIcon) refreshIcon.classList.add('fa-spin');
@@ -661,13 +715,13 @@
           const res = await fetch(SCRIPT_URL);
           const data = await res.json();
           globalParticipants = Array.isArray(data) ? data : [];
-          renderAdminTable(globalParticipants);
+          renderAdminTable(getFilteredParticipants());
         } catch (err) {
           console.warn("Gagal tarik online, fallback ke local:", err);
           if (globalParticipants.length === 0) {
             const localList = JSON.parse(localStorage.getItem('jkew_participants') || '[]');
             globalParticipants = localList.filter(item => item && (item.nama || item.name));
-            renderAdminTable(globalParticipants);
+            renderAdminTable(getFilteredParticipants());
           }
         } finally {
           if (refreshIcon) refreshIcon.classList.remove('fa-spin');
@@ -675,11 +729,18 @@
       }
 
       function renderAdminTable(list) {
-        participantCount.textContent = list.length;
+        const isSearching = searchSalaryInput.value.trim().length > 0;
+        participantCount.textContent = isSearching 
+          ? `${list.length} / ${globalParticipants.length}` 
+          : globalParticipants.length;
+
         participantTableBody.innerHTML = '';
 
         if (!list || list.length === 0) {
-          participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tiada rekod pendaftaran dijumpai.</td></tr>`;
+          const emptyMsg = isSearching 
+            ? `Tiada rekod dijumpai bagi No. Gaji "${searchSalaryInput.value.trim()}".`
+            : 'Tiada rekod pendaftaran dijumpai.';
+          participantTableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">${emptyMsg}</td></tr>`;
           return;
         }
 
@@ -704,7 +765,9 @@
 
       // Jana & Muat Turun PDF
       downloadPdfBtn.addEventListener('click', () => {
-        if (globalParticipants.length === 0) {
+        const exportList = getFilteredParticipants();
+
+        if (exportList.length === 0) {
           alert('Tiada data untuk dimuat turun!');
           return;
         }
@@ -722,9 +785,9 @@
 
         doc.setFontSize(8.5);
         doc.setTextColor(100, 116, 139);
-        doc.text(`Tarikh Cetakan: ${new Date().toLocaleString('ms-MY')} | Jumlah Peserta: ${globalParticipants.length}`, 14, 31);
+        doc.text(`Tarikh Cetakan: ${new Date().toLocaleString('ms-MY')} | Jumlah Peserta: ${exportList.length}`, 14, 31);
 
-        const tableData = globalParticipants.map((item, index) => [
+        const tableData = exportList.map((item, index) => [
           index + 1,
           item.nama || item.name || '-',
           item.noGaji || item.salaryNo || '-',
